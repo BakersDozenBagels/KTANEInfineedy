@@ -12,6 +12,7 @@ public class ButtonScript : MonoBehaviour
 
     private KMSelectable _sel;
     private KMAudio _audio;
+    private InfinityScript _infinity;
 
     private Vector3 _origPos;
     private const float Delta = -0.01f;
@@ -25,11 +26,13 @@ public class ButtonScript : MonoBehaviour
         _origPos = _button.localPosition;
         _audio = GetComponentInParent<KMAudio>();
         _sel = GetComponent<KMSelectable>();
+        _infinity = GetComponentInParent<InfineedyScript>().GetComponentInChildren<InfinityScript>();
         _sel.OnInteract += () =>
         {
             _sel.AddInteractionPunch(0.2f);
             _audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
             Animate(To(Delta));
+            _infinity.LookAt(new Vector2(transform.localPosition.x, transform.localPosition.z).normalized * 2f);
             OnPress();
             return false;
         };
@@ -38,8 +41,11 @@ public class ButtonScript : MonoBehaviour
             _sel.AddInteractionPunch(0.1f);
             _audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonRelease, transform);
             Animate(To(0));
+            _infinity.LookAt(new Vector2(transform.localPosition.x, transform.localPosition.z).normalized);
             OnRelease();
         };
+        _sel.OnHighlight += () => _infinity.LookAt(new Vector2(transform.localPosition.x, transform.localPosition.z).normalized);
+        _sel.OnHighlightEnded += () => _infinity.Release();
     }
 
     private void Animate(IEnumerator animation)
